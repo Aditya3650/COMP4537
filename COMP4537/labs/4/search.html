@@ -32,14 +32,22 @@
             
             xhr.open(get, url, true);
               
+            // xhr.onreadystatechange = function() {
+            //     if (xhr.readyState === XMLHttpRequest.DONE) {
+            //         if (xhr.status === 200) {
+            //             const response = JSON.parse(xhr.responseText);
+            //             displaySearchResults(response);
+            //         } else {
+            //             displaySearchError(xhr.status);
+            //         }
+            //     }
+            // };
+
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200) {
-                        const response = JSON.parse(xhr.responseText);
-                        displaySearchResults(response);
-                    } else {
-                        displaySearchError(xhr.status);
-                    }
+                    const response = JSON.parse(xhr.responseText);
+                    displaySearchResults(response);
+                    
                 }
             };
      
@@ -53,15 +61,17 @@
             
             if (!results.error) {
                 resultsDiv.textContent = "Definition: " + results.data.definition;
+            } else {
+                resultsDiv.textContent = "Error Code: " + results.statusCode + ", " + results.message;
             }
         }
         
       
-        function displaySearchError(statusCode) {
-            const searchQuery = document.getElementById("search-query").value;
-            const resultsDiv = document.getElementById("search-results");
-            resultsDiv.textContent = "Error: " + statusCode + " - " + searchQuery + " does not exist in the dictionary.";
-        }
+        // function displaySearchError(statusCode) {
+        //     const searchQuery = document.getElementById("search-query").value;
+        //     const resultsDiv = document.getElementById("search-results");
+        //     resultsDiv.textContent = "Error: " + statusCode + " - " + searchQuery + " does not exist in the dictionary.";
+        // }
     </script>
 
 </body>
