@@ -6,8 +6,7 @@
 <body>
     <h1>Dictionary</h1>
     
-    <form>
-   
+    <form  id="dictionary-form">
         <label for="word">Word:</label>
         <input type="text" id="word" name="word" required><br><br>
      
@@ -18,6 +17,7 @@
     </form>
 
     <script>
+    
         document.getElementById("dictionary-form").addEventListener("submit", function(event) {
             event.preventDefault(); 
             
@@ -26,27 +26,21 @@
             var definition = document.getElementById("definition").value;
             
     
-            var otherWebsiteUrl = "https://riceloveralexander.com/COMP4537/labs/4/api/definitions";
-            
-           
-            var data = {
-                word: word,
-                definition: definition
-            };
-            
+            var otherWebsiteUrl = "https://riceloveralexander.com/COMP4537/labs/4/api/definitions";         
         
             var xhr = new XMLHttpRequest();
             
             
             xhr.open("POST", otherWebsiteUrl, true);
-            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             
    
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
+                    console.log(xhr.response);
                     if (xhr.status === 200) {
                         alert("Definition submitted successfully.");
-                        // You can perform additional actions after a successful submission.
+                
                     } else {
                         alert("Failed to submit definition.");
                     }
@@ -54,7 +48,8 @@
             };
             
          
-            xhr.send(JSON.stringify(data));
+            xhr.send(`?word=${word}&definition=${definition}`);
+           
         });
     </script>
 </body>
