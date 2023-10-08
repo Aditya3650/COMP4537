@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Store</title>
+</head>
+<body>
+    <h1>Dictionary</h1>
+    
+    <form>
+   
+        <label for="word">Word:</label>
+        <input type="text" id="word" name="word" required><br><br>
+     
+        <label for="definition">Definition:</label><br>
+        <textarea id="definition" name="definition" rows="4" cols="50" required></textarea><br><br>
+     
+        <input type="submit" value="Create Definition">
+    </form>
+
+    <script>
+        document.getElementById("dictionary-form").addEventListener("submit", function(event) {
+            event.preventDefault(); 
+            
+           
+            var word = document.getElementById("word").value;
+            var definition = document.getElementById("definition").value;
+            
+    
+            var otherWebsiteUrl = "https://riceloveralexander.com/COMP4537/labs/4/api/definitions";
+            
+           
+            var data = {
+                word: word,
+                definition: definition
+            };
+            
+        
+            var xhr = new XMLHttpRequest();
+            
+            
+            xhr.open("POST", otherWebsiteUrl, true);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            
+   
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        alert("Definition submitted successfully.");
+                        // You can perform additional actions after a successful submission.
+                    } else {
+                        alert("Failed to submit definition.");
+                    }
+                }
+            };
+            
+         
+            xhr.send(JSON.stringify(data));
+        });
+    </script>
+</body>
+</html>
