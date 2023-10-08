@@ -19,26 +19,23 @@
     </form>
 
     <script>
+        const get = "GET";
+
         document.getElementById("search-form").addEventListener("submit", function(event) {
             event.preventDefault();
-            
-            
-            var searchQuery = document.getElementById("search-query").value;
-            
+                       
+            const searchQuery = document.getElementById("search-query").value;
         
-            var xhr = new XMLHttpRequest();
+            const xhr = new XMLHttpRequest();
             
-           
-            var url = "https://riceloveralexander.com/COMP4537/labs/4/api/definitions/?word="; 
+            const url = "https://riceloveralexander.com/COMP4537/labs/4/api/definitions/?word=" + encodeURIComponent(searchQuery);
             
-          
-            xhr.open("GET", url + "?q=" + encodeURIComponent(searchQuery), true);
-            
-    
+            xhr.open(get, url, true);
+              
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
                     if (xhr.status === 200) {
-                        var response = JSON.parse(xhr.responseText);
+                        const response = JSON.parse(xhr.responseText);
                         displaySearchResults(response);
                     } else {
                         displaySearchError(xhr.status);
@@ -50,25 +47,22 @@
         });
 
         function displaySearchResults(results) {
-            var resultsDiv = document.getElementById("search-results");
+            console.log(results)
+            const resultsDiv = document.getElementById("search-results");
             resultsDiv.innerHTML = "";
             
-            if (results.found) {
-                var definition = results.definition;
-                resultsDiv.textContent = "Definition: " + definition;
-            } else {
-                resultsDiv.textContent = "Request# " + results.requestNumber + ", word '" + results.word + "' not found!";
+            if (!results.error) {
+                resultsDiv.textContent = "Definition: " + results.data.definition;
             }
         }
         
-        // Function to display an error message
+      
         function displaySearchError(statusCode) {
-            var resultsDiv = document.getElementById("search-results");
-            resultsDiv.textContent = "Error: " + statusCode + " - Unable to retrieve data.";
+            const searchQuery = document.getElementById("search-query").value;
+            const resultsDiv = document.getElementById("search-results");
+            resultsDiv.textContent = "Error: " + statusCode + " - " + searchQuery + " does not exist in the dictionary.";
         }
     </script>
 
 </body>
-
-
 </html>

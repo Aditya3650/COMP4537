@@ -17,7 +17,8 @@
     </form>
 
     <script>
-    
+        const post = "POST";
+
         document.getElementById("dictionary-form").addEventListener("submit", function(event) {
             event.preventDefault(); 
             
@@ -31,7 +32,7 @@
             var xhr = new XMLHttpRequest();
             
             
-            xhr.open("POST", otherWebsiteUrl, true);
+            xhr.open(post, otherWebsiteUrl, true);
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             
    
