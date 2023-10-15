@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Aditya's Client</title>
+</head>
+<body>
+    <h1>Client</h1>
+    <hr><br><br>
+
+    <button id="insertButton">Insert Rows</button>
+
+    <br><br>
+    <hr>
+
+
+    <textarea id="queryInput" rows="4" cols="50" placeholder="Enter your query (INSERT or SELECT)"></textarea><br>
+
+    <button id="submitButton">Submit Query</button>
+
+    <br><br>
+    <hr>
+
+    <div id="response"></div>
+
+    <script>
+        const baseURL = "https://riceloveralexander.com/COMP4537/labs/5/api/v1/sql";
+
+
+        function sendRequest(method, url, data, callback) {
+            const xhr = new XMLHttpRequest();
+            xhr.open(method, url, true);
+            // xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    if (200 <= xhr.status <= 300) {
+                        callback(xhr.responseText);
+                    } else {
+                        callback("Error: " + xhr.status + " - " + xhr.statusText);
+                    }
+                }
+            };
+            xhr.send(data);
+        }
+
+
+        document.getElementById('insertButton').addEventListener('click', function() {
+
+
+            const data = "?sql=";
+            const url = `${baseURL}${data}`;
+
+
+            sendRequest('POST', url, data, function(response) {
+                console.log(response)
+                document.getElementById('response').textContent = response;
+            });
+
+        });
+
+
+        document.getElementById('submitButton').addEventListener('click', function() {
+            const query = document.getElementById('queryInput').value;
+            const method = query.trim().toLowerCase().startsWith('select') ? 'GET' : 'POST';
+
+
+            const url = method === 'GET' ? `${baseURL}/${encodeURIComponent(query)}` : baseURL;
+            // sendRequest(method, url, JSON.stringify({ sql: query }), function(response) {
+            sendRequest(method, url, `?sql=${query}`, function(response) {
+                console.log(JSON.stringify(JSON.parse(response).data));
+                document.getElementById('response').innerHTML = "";
+                JSON.parse(response).data.map(row => {
+                    const p = document.createElement("p");
+                    p.textContent = JSON.stringify(row);
+                    document.getElementById('response').appendChild(p);
+                })
+                // console.log(response)
+                // document.getElementById('response').textContent = JSON.stringify(JSON.parse(response).data);
+                // document.getElementById('response').textContent = response;
+            });
+        });
+    </script>
+</body>
+</html>
