@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Word and Definition Input</title>
+</head>
+<body>
+    <h1>Enter Word and Definition</h1>
+
+    <form id="wordDefinitionForm">
+        <label for="word">Word:</label>
+        <input type="text" id="word" name="word" required><br><br>
+
+        <label for="wordLanguage">Select Language for the Word:</label>
+        <select id="wordLanguage" name="wordLanguage">
+         
+        </select><br><br>
+
+        <label for="definition">Definition:</label>
+        <input type="text" id="definition" name="definition" required><br><br>
+
+        <label for="definitionLanguage">Select Language for the Definition:</label>
+        <select id="definitionLanguage" name="definitionLanguage">
+            
+        </select><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <div id="serverResponse">
+       
+    </div>
+
+    <script>
+        
+        fetch('https://dlerkvaftj.us17.qoddiapp.com/api/v1/languages')
+            .then(response => response.json())
+            .then(data => {
+                const wordLanguageSelect = document.getElementById('wordLanguage');
+                const definitionLanguageSelect = document.getElementById('definitionLanguage');
+
+                data.languages.forEach(language => {
+                    const wordOption = document.createElement('option');
+                    wordOption.value = language.languageName;
+                    wordOption.text = language.languageName;
+                    wordLanguageSelect.appendChild(wordOption);
+
+                    const definitionOption = document.createElement('option');
+                    definitionOption.value = language.languageName;
+                    definitionOption.text = language.languageName;
+                    definitionLanguageSelect.appendChild(definitionOption);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching languages:', error);
+            });
+
+        // Handle form submission
+        document.getElementById('wordDefinitionForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = {
+                word: document.getElementById('word').value,
+                definition: document.getElementById('definition').value,
+                wordLanguage: document.getElementById('wordLanguage').value,
+                definitionLanguage: document.getElementById('definitionLanguage').value
+            };
+
+            fetch('https://dlerkvaftj.us17.qoddiapp.com/api/v1/definition', {
+                method: 'POST',
+                body: JSON.stringify(formData),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.status === 409) {
+                    return response.json();
+                }
+                return response.json().then(data => {
+                    const serverResponseDiv = document.getElementById('serverResponse');
+                    if (data.message) {
+                        serverResponseDiv.innerHTML = `<p><strong>Status Code:</strong> ${data.statusCode} - ${data.message}</p>                       
+                        <p><strong>Word:</strong> ${formData.word}</p>
+                        <p><strong>Definition:</strong> ${formData.definition}</p>
+                        <p><strong>Word Language:</strong> ${formData.wordLanguage}</p>
+                        <p><strong>Definition Language:</strong> ${formData.definitionLanguage}</p>
+                        <p><strong>Total Entries:</strong> ${data.total}</p>`;
+                        
+                    } else if (data.error) {
+                        serverResponseDiv.innerHTML = `<p>Status Code: ${data.statusCode} - ${data.message}</p>`;
+                    }
+                });
+            })
+            .then(data => {
+                if (data) {
+                    const confirmed = confirm('Word already exists. Would you like to update its definition?');
+                    if (confirmed) {
+                        const patchData = {
+                            definition: document.getElementById('definition').value,
+                            definitionLanguage: document.getElementById('definitionLanguage').value
+                        };
+
+                        fetch(`https://dlerkvaftj.us17.qoddiapp.com/api/v1/definition/${formData.word}`, {
+                            method: 'PATCH',
+                            body: JSON.stringify(patchData),
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            const serverResponseDiv = document.getElementById('serverResponse');
+                            serverResponseDiv.innerHTML = `<p><strong>Status Code:</strong> ${data.statusCode} - ${data.message}</p>`;
+                            serverResponseDiv.innerHTML += `
+                            <p><strong>Word:</strong> ${formData.word}</p>
+                            <p><strong>Definition:</strong> ${formData.definition}</p>
+                            <p><strong>Word Language:</strong> ${formData.wordLanguage}</p>
+                            <p><strong>Definition Language:</strong> ${formData.definitionLanguage}</p>`;
+                            serverResponseDiv.innerHTML += `<p><strong>Total Entries:</strong> ${data.total}</p>`;
+                        })
+                        .catch(error => {
+                            console.error('Error updating definition:', error);
+                            const serverResponseDiv = document.getElementById('serverResponse');
+                            serverResponseDiv.innerHTML = `<p>Status Code: ${data.statusCode} - ${data.message}</p>`;
+                        });
+                    }
+                }
+            })
+            // .catch(error => {
+            //     console.error('Error creating or updating definition:', error);
+            //     const serverResponseDiv = document.getElementById('serverResponse');
+            //     serverResponseDiv.innerHTML += "Error: Failed to create or update the definition.";
+            // });
+        });
+    </script>
+</body>
+</html>

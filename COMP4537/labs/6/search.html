@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Word</title>
+</head>
+<body>
+    <h1>Search for a Word</h1>
+
+    <form id="searchForm">
+        <label for="searchWord">Word:</label>
+        <input type="text" id="searchWord" name="searchWord" required><br><br>
+
+        <input type="submit" value="Search">
+    </form>
+
+    <div id="searchResults">
+        
+    </div>
+
+    <button id="deleteButton" style="display: none;">Delete Word</button>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const word = document.getElementById('searchWord').value;
+
+            fetch(`https://dlerkvaftj.us17.qoddiapp.com/api/v1/definition/${word}`)
+                .then(response => {
+                    if (response.ok) {
+                        document.getElementById('deleteButton').style.display = 'block';
+                        return response.json();
+                    } else if (response.status === 404) {
+                        return response.json().then(data => {
+                            const searchResultsDiv = document.getElementById('searchResults');
+                            searchResultsDiv.innerHTML = `<p>Status Code: ${data.statusCode} - ${data.message}</p>`;
+                        });
+                    } else {
+                        throw new Error('Failed to fetch data');
+                    }
+                })
+                .then(data => {
+                    const searchResultsDiv = document.getElementById('searchResults');
+                    const entry = data.entry;
+                    searchResultsDiv.innerHTML = `
+                        <p><strong>Status Code for Get:</strong> ${data.statusCode} - ${data.message}</p>
+                        <p><strong>Word:</strong> ${entry.word}</p>
+                        <p><strong>Definition:</strong> ${entry.definition}</p>
+                        <p><strong>Word Language:</strong> ${entry.wordLanguage}</p>
+                        <p><strong>Definition Language:</strong> ${entry.definitionLanguage}</p>
+                    `;
+                })
+                // .catch(error => {
+                //     console.error('Error:', error);
+                //     const searchResultsDiv = document.getElementById('searchResults');
+                //     searchResultsDiv.innerHTML = '<p>Error: Failed to fetch data ddddd</p>';
+                // });
+        });
+
+        document.getElementById('deleteButton').addEventListener('click', function() {
+            const word = document.getElementById('searchWord').value;
+
+            fetch(`https://dlerkvaftj.us17.qoddiapp.com/api/v1/definition/${word}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else if (response.status === 404) {
+                    return response.json().then(data => {
+                        const searchResultsDiv = document.getElementById('searchResults');
+                        searchResultsDiv.innerHTML = `<p>Status Code: ${data.statusCode} - ${data.message}</p>`;
+                        searchResultsDiv.innerHTML += `<p>Total Entries: ${data.total}</p>`;
+                    });
+                } else {
+                    throw new Error('Failed to delete data');
+                }
+            })
+            .then(data => {
+                const searchResultsDiv = document.getElementById('searchResults');
+                searchResultsDiv.innerHTML = `<p><strong>Status Code for Delete:</strong> ${data.statusCode} - ${data.message}</p>
+                <p><strong>Word:</strong> ${data.entry.word}</p>
+                <p><strong>Definition:</strong> ${data.entry.definition}</p>
+                <p><strong>Word Language:</strong> ${data.entry.wordLanguage}</p>
+                <p><strong>Definition Language:</strong> ${data.entry.definitionLanguage}</p>
+                <p><strong>Total Entries:</strong> ${data.total}</p>`;
+            })
+            // .catch(error => {
+            //     console.error('Error:', error);
+            //     const searchResultsDiv = document.getElementById('searchResults');
+            //     searchResultsDiv.innerHTML = '<p>Error: Failed to delete data</p>';
+            // });
+        });
+    </script>
+</body>
+</html>
